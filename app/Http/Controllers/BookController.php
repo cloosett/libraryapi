@@ -11,31 +11,6 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class BookController extends Controller
 {
-    public function index(Request $request)
-    {
-        $unhashedtoken = $request->bearerToken();
-        $token = explode('|', $unhashedtoken)[1];
-
-        if (!$token) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        $personalAccessToken = PersonalAccessToken::where('token', hash('sha256', $token))->first();
-
-        if (!$personalAccessToken) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        $user = $personalAccessToken->tokenable;
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        return UserResource::make($user)->resolve();
-    }
-
-
     public function handleBooks(Request $request, OpenAIService $openAIService)
     {
         if ($request->isMethod('get')) {
@@ -62,5 +37,14 @@ class BookController extends Controller
 
             return BookResource::make($book);
         }
+    }
+
+    public function show($id)
+    {
+        $book = Book::find($id);
+        if(!$book) {
+            return response()->json(['message' => 'Book not found'], 404);
+        }
+        return BookResource::make($book)->resolve();
     }
 }
