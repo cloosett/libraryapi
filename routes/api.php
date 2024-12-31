@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('login', [App\Http\Controllers\ApiAuthController::class, 'login']);
-Route::post('register', [App\Http\Controllers\ApiAuthController::class, 'register']);
+Route::post('/login', [App\Http\Controllers\ApiAuthController::class, 'login']);
+Route::post('/register', [App\Http\Controllers\ApiAuthController::class, 'register']);
 Route::post('/refresh', [App\Http\Controllers\ApiAuthController::class, 'refresh']);
 
 Route::middleware('auth:sanctum')->post('logout', [App\Http\Controllers\ApiAuthController::class, 'logout']);

@@ -34,26 +34,32 @@ class ApiAuthController extends Controller
     public function login(Request $request)
     {
         // Валідація запиту
-//        $request->validate([
-//            'email' => 'required|string|email|max:255',
-//            'password' => 'required|string|min:8',
-//        ]);
+        // $request->validate([
+        //     'email' => 'required|string|email|max:255',
+        //     'password' => 'required|string|min:8',
+        // ]);
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
 
-            $token = $user->createToken('Personal Access Token', ['*'])
-                ->expiresAt(Carbon::now()->addMinutes(5))
-                ->plainTextToken;
-
+            $token = $user->createToken('Personal Access Token', ['*'])->plainTextToken;
 
             $refreshToken = bin2hex(random_bytes(64));
 
             $user->refreshTokens()->create(['token' => $refreshToken]);
 
+            $expirationTime = Carbon::now()->addMinutes(5);
+
+            $user->tokens()->create([
+                'name' => 'Personal Access Token',
+                'token' => hash('sha256', $token),
+                'expires_at' => $expirationTime,
+            ]);
+
             return response()->json([
                 'access_token' => $token,
                 'refresh_token' => $refreshToken,
+                'expires_at' => $expirationTime,
             ]);
         }
 
